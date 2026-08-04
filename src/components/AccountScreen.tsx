@@ -336,7 +336,7 @@ export const AccountScreen: React.FC<AccountScreenProps> = ({ onOpenAuth }) => {
           className="w-full py-3.5 px-4 bg-[#E8F3EA] hover:bg-[#D4E8D9] text-[#0D631B] font-bold text-xs rounded-2xl border border-[#D4E8D9] flex items-center justify-center gap-2 transition"
         >
           <MessageSquare className="w-4 h-4 text-[#0D631B]" />
-          <span>Contacter le support WhatsApp Dabou</span>
+          <span>Contacter le support WhatsApp (01 01 68 25 35)</span>
         </a>
 
         <button

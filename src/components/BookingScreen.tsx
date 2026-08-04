@@ -25,6 +25,7 @@ import {
   getCurrentUserCoordinates 
 } from '../services/mapsService';
 import { calculateRidePrice } from '../services/pricingService';
+import { DISPATCH_WHATSAPP_NUMBER } from '../services/notificationService';
 import { PricingCalculation, ServiceType, DabouLandmark } from '../types';
 
 interface BookingScreenProps {
@@ -623,12 +624,13 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
       <div className="flex items-center justify-between px-2 pt-2 text-xs text-[#5B6B7A]">
         <span>Allô Dabou VTC • Services 24/7</span>
         <a
-          href="https://wa.me/2250700000000"
+          href={`https://wa.me/${DISPATCH_WHATSAPP_NUMBER}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="font-bold text-[#0D631B] hover:underline"
+          className="font-bold text-[#0D631B] hover:underline flex items-center gap-1"
         >
-          Besoin d'aide ? Support WhatsApp
+          <Phone className="w-3.5 h-3.5" />
+          <span>Support WhatsApp (01 01 68 25 35)</span>
         </a>
       </div>
 

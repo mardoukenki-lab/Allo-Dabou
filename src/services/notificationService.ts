@@ -4,7 +4,7 @@ import { getMessagingInstance, db } from '../lib/firebase';
 import { getToken, onMessage } from 'firebase/messaging';
 import { doc, updateDoc } from 'firebase/firestore';
 
-export const DISPATCH_WHATSAPP_NUMBER = '2250700000000'; // Official Dabou Dispatch WhatsApp
+export const DISPATCH_WHATSAPP_NUMBER = '2250101682535'; // Official Dabou Dispatch & Support WhatsApp (0101682535)
 
 /**
  * Registers Firebase Cloud Messaging (FCM) Push Token for the current user
