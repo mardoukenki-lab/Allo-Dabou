@@ -1,0 +1,25 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isUserAdmin() {
+      return request.auth != null && (
+        request.auth.token.email == 'mardoukenki@gmail.com' ||
+        (request.auth.token.email != null && request.auth.token.email.matches('(?i)mardoukenki@gmail.com'))
+      );
+    }
+
+    match /users/{userId} {
+      // Allow reading user profiles so driver names/phones are visible & admin can list pending drivers
+      allow read, list: if request.auth != null;
+      allow write: if request.auth != null && (request.auth.uid == userId || isUserAdmin());
+    }
+
+    match /rides/{rideId} {
+      allow create: if request.auth != null;
+
+      allow read, list: if request.auth != null;
+
+      allow update: if request.auth != null;
+    }
+  }
+}

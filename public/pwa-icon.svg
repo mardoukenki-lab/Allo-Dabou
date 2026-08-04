@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="108" fill="#0D631B"/>
+  <!-- Taxi moto outline / graphic -->
+  <path d="M 120,320 A 45,45 0 1,0 210,320 A 45,45 0 1,0 120,320 Z" fill="none" stroke="#FFFFFF" stroke-width="24" />
+  <path d="M 302,320 A 45,45 0 1,0 392,320 A 45,45 0 1,0 302,320 Z" fill="none" stroke="#FFFFFF" stroke-width="24" />
+  <path d="M 165,320 L 230,220 L 300,220 L 347,320" fill="none" stroke="#FFFFFF" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 230,220 L 210,160 L 160,160" fill="none" stroke="#FFFFFF" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 270,180 L 330,180" fill="none" stroke="#FACC15" stroke-width="20" stroke-linecap="round" />
+  <!-- Text Allô Dabou VTC -->
+  <text x="256" y="430" font-family="'Segoe UI', sans-serif" font-weight="bold" font-size="38" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">ALLÔ DABOU VTC</text>
+</svg>

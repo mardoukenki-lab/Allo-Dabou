@@ -1,0 +1,6 @@
+{
+  "name": "Allô Dabou VTC",
+  "description": "Application Android/PWA de réservation de courses taxi-moto à Dabou (Côte d'Ivoire) avec calcul automatique du tarif selon la distance.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "Allô Dabou VTC",
+  "short_name": "Allô Dabou",
+  "description": "Application de réservation de courses taxi-moto à Dabou avec calcul automatique de tarif par distance.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F7F8FB",
+  "theme_color": "#0D631B",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/pwa-icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
