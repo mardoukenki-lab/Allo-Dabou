@@ -11,11 +11,13 @@ import {
   Package,
   KeyRound,
   AlertCircle,
-  Star
+  Star,
+  Share2
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { createRide } from '../services/rideService';
 import { RideRatingModal } from './RideRatingModal';
+import { ShareRideModal } from './ShareRideModal';
 import { generateWhatsAppDispatchUrl, notifyTeamNewBooking } from '../services/notificationService';
 import { PricingCalculation, Ride, ServiceType } from '../types';
 
@@ -54,6 +56,7 @@ export const ConfirmationScreen: React.FC<ConfirmationScreenProps> = ({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [bookedRide, setBookedRide] = useState<Ride | null>(null);
   const [showRatingModal, setShowRatingModal] = useState<boolean>(false);
+  const [showShareModal, setShowShareModal] = useState<boolean>(false);
 
   const handleConfirmRide = async () => {
     if (!user) {
@@ -219,6 +222,15 @@ export const ConfirmationScreen: React.FC<ConfirmationScreenProps> = ({
               <span>Contacter le Dispatch sur WhatsApp</span>
             </a>
 
+            <button
+              type="button"
+              onClick={() => setShowShareModal(true)}
+              className="w-full py-3.5 px-4 bg-[#25D366] hover:bg-[#20bd5a] text-white font-extrabold rounded-2xl text-xs shadow-xs flex items-center justify-center gap-2 transition cursor-pointer"
+            >
+              <Share2 className="w-4 h-4" />
+              <span>Partager mon trajet (WhatsApp / SMS)</span>
+            </button>
+
             {bookedRide.status === 'completed' && (
               <div className="pt-2">
                 {bookedRide.rating ? (
@@ -266,6 +278,14 @@ export const ConfirmationScreen: React.FC<ConfirmationScreenProps> = ({
             ride={bookedRide}
             isOpen={showRatingModal}
             onClose={() => setShowRatingModal(false)}
+          />
+        )}
+
+        {showShareModal && (
+          <ShareRideModal
+            ride={bookedRide}
+            isOpen={showShareModal}
+            onClose={() => setShowShareModal(false)}
           />
         )}
       </div>

@@ -12,11 +12,13 @@ import {
   RefreshCw,
   PhoneCall,
   UserCheck,
-  Star
+  Star,
+  Share2
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { subscribeUserRides, cancelRide } from '../services/rideService';
 import { RideRatingModal } from './RideRatingModal';
+import { ShareRideModal } from './ShareRideModal';
 import { 
   generateWhatsAppDispatchUrl, 
   playClientAcceptedChime, 
@@ -67,6 +69,7 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [selectedRideForRating, setSelectedRideForRating] = useState<Ride | null>(null);
+  const [selectedRideForShare, setSelectedRideForShare] = useState<Ride | null>(null);
 
   const prevStatuses = useRef<Record<string, RideStatus>>({});
   const initialClientLoad = useRef<boolean>(false);
@@ -427,14 +430,23 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
                     className="flex-1 py-2.5 px-3 bg-[#E8F3EA] hover:bg-[#D4E8D9] text-[#0D631B] font-bold text-xs rounded-2xl text-center flex items-center justify-center gap-1.5 transition border border-[#D4E8D9]"
                   >
                     <MessageSquare className="w-3.5 h-3.5 text-[#0D631B]" />
-                    <span>WhatsApp Dispatch</span>
+                    <span>Dispatch</span>
                   </a>
+
+                  <button
+                    type="button"
+                    onClick={() => setSelectedRideForShare(ride)}
+                    className="py-2.5 px-3 bg-[#25D366] hover:bg-[#20bd5a] text-white font-extrabold text-xs rounded-2xl flex items-center gap-1.5 transition cursor-pointer shadow-2xs"
+                  >
+                    <Share2 className="w-3.5 h-3.5" />
+                    <span>Partager</span>
+                  </button>
 
                   {ride.status === 'pending' && (
                     <button
                       onClick={() => handleCancel(ride.id)}
                       disabled={cancellingId === ride.id}
-                      className="py-2.5 px-3 bg-red-50 hover:bg-red-100 text-red-700 font-bold text-xs rounded-2xl border border-red-200 flex items-center gap-1 transition"
+                      className="py-2.5 px-3 bg-red-50 hover:bg-red-100 text-red-700 font-bold text-xs rounded-2xl border border-red-200 flex items-center gap-1 transition cursor-pointer"
                     >
                       {cancellingId === ride.id ? (
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -457,6 +469,15 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
           ride={selectedRideForRating}
           isOpen={!!selectedRideForRating}
           onClose={() => setSelectedRideForRating(null)}
+        />
+      )}
+
+      {/* Share Ride Modal */}
+      {selectedRideForShare && (
+        <ShareRideModal
+          ride={selectedRideForShare}
+          isOpen={!!selectedRideForShare}
+          onClose={() => setSelectedRideForShare(null)}
         />
       )}
     </div>

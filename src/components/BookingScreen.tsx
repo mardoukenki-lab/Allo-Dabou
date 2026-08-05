@@ -368,24 +368,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
               </div>
             )}
 
-            {/* Quick Landmark Chips for Pickup */}
-            <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
-              <span className="text-[10px] uppercase tracking-wider font-bold text-[#5B6B7A]">Sélection rapide :</span>
-              {displayedChips.slice(0, 5).map((lm) => (
-                <button
-                  key={`p-${lm.id}`}
-                  type="button"
-                  onClick={() => handleSelectLandmark('pickup', lm.name)}
-                  className={`text-[11px] font-semibold px-2.5 py-1 rounded-xl transition ${
-                    pickup === lm.name
-                      ? 'bg-[#0D631B] text-white shadow-xs'
-                      : 'bg-[#F7F8FB] text-[#111C2D] border border-[#E4E9EE] hover:bg-[#E8F3EA] hover:text-[#0D631B]'
-                  }`}
-                >
-                  {lm.name}
-                </button>
-              ))}
-            </div>
+
           </div>
 
           {/* Dotted Divider & Swap Button */}
@@ -480,17 +463,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
 
           </div>
 
-          {/* Button to open full Dabou Neighborhoods Modal */}
-          <div className="pt-2">
-            <button
-              type="button"
-              onClick={() => setShowQuartiersModal(true)}
-              className="w-full py-2.5 px-4 bg-[#F7F8FB] hover:bg-[#E8F3EA] border border-[#E4E9EE] hover:border-[#D4E8D9] rounded-2xl text-xs font-bold text-[#0D631B] transition flex items-center justify-center gap-2 group"
-            >
-              <Compass className="w-4 h-4 text-[#0D631B] group-hover:rotate-45 transition-transform" />
-              <span>📍 Voir les 24 Quartiers & Repères de Dabou (Google Maps)</span>
-            </button>
-          </div>
+
 
           {/* Specific fields for Delivery */}
           {serviceType === 'delivery' && (
