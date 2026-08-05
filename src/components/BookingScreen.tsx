@@ -53,6 +53,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
   const [conciergeTask, setConciergeTask] = useState<string>('');
 
   const [isLocating, setIsLocating] = useState<boolean>(false);
+  const [isGpsAutoFilled, setIsGpsAutoFilled] = useState<boolean>(false);
   const [isCalculating, setIsCalculating] = useState<boolean>(false);
   const [calcResult, setCalcResult] = useState<PricingCalculation | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -67,6 +68,30 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
 
   const pickupRef = useRef<HTMLDivElement>(null);
   const destinationRef = useRef<HTMLDivElement>(null);
+
+  // Auto-detect user GPS position on mount to pre-fill pickup address
+  useEffect(() => {
+    let isMounted = true;
+    if (!pickup) {
+      setIsLocating(true);
+      getCurrentUserCoordinates()
+        .then((coords) => {
+          if (isMounted && coords?.address) {
+            setPickup(coords.address);
+            setIsGpsAutoFilled(true);
+          }
+        })
+        .catch(() => {
+          // If permission denied or unavailable on load, fail gracefully without showing error banner
+        })
+        .finally(() => {
+          if (isMounted) setIsLocating(false);
+        });
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -127,6 +152,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
     try {
       const coords = await getCurrentUserCoordinates();
       setPickup(coords.address);
+      setIsGpsAutoFilled(true);
     } catch (err: any) {
       setLocationError(err.message);
     } finally {
@@ -137,6 +163,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
   const handleSelectLandmark = (type: 'pickup' | 'destination', name: string) => {
     if (type === 'pickup') {
       setPickup(name);
+      setIsGpsAutoFilled(false);
       setShowPickupDropdown(false);
     } else {
       setDestination(name);
@@ -266,6 +293,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
                 value={pickup}
                 onChange={(e) => {
                   setPickup(e.target.value);
+                  setIsGpsAutoFilled(false);
                   setShowPickupDropdown(true);
                 }}
                 onFocus={() => setShowPickupDropdown(true)}
@@ -282,13 +310,24 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
               {pickup && (
                 <button
                   type="button"
-                  onClick={() => setPickup('')}
+                  onClick={() => {
+                    setPickup('');
+                    setIsGpsAutoFilled(false);
+                  }}
                   className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#5B6B7A] hover:text-[#111C2D]"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
+
+            {/* GPS Auto-fill status notification badge */}
+            {isGpsAutoFilled && pickup && (
+              <div className="mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-[#0D631B] bg-[#E8F3EA] px-3 py-1 rounded-xl w-fit border border-[#D4E8D9]">
+                <Sparkles className="w-3 h-3 text-[#0D631B] shrink-0" />
+                <span>Départ pré-rempli automatiquement par géolocalisation GPS</span>
+              </div>
+            )}
 
             {/* Pickup Suggestions Autocomplete Dropdown */}
             {showPickupDropdown && pickupSuggestions.length > 0 && (
@@ -438,24 +477,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
               </div>
             )}
 
-            {/* Quick Landmark Chips for Destination */}
-            <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
-              <span className="text-[10px] uppercase tracking-wider font-bold text-[#5B6B7A]">Sélection rapide :</span>
-              {displayedChips.slice(2, 7).map((lm) => (
-                <button
-                  key={`d-${lm.id}`}
-                  type="button"
-                  onClick={() => handleSelectLandmark('destination', lm.name)}
-                  className={`text-[11px] font-semibold px-2.5 py-1 rounded-xl transition ${
-                    destination === lm.name
-                      ? 'bg-[#0D631B] text-white shadow-xs'
-                      : 'bg-[#F7F8FB] text-[#111C2D] border border-[#E4E9EE] hover:bg-[#E8F3EA] hover:text-[#0D631B]'
-                  }`}
-                >
-                  {lm.name}
-                </button>
-              ))}
-            </div>
+
           </div>
 
           {/* Button to open full Dabou Neighborhoods Modal */}

@@ -28,6 +28,7 @@ interface ConfirmationScreenProps {
   onBack: () => void;
   onRideBookedSuccess: (ride: Ride) => void;
   onOpenAuth: () => void;
+  onViewHistory?: () => void;
 }
 
 export const ConfirmationScreen: React.FC<ConfirmationScreenProps> = ({
@@ -41,6 +42,7 @@ export const ConfirmationScreen: React.FC<ConfirmationScreenProps> = ({
   onBack,
   onRideBookedSuccess,
   onOpenAuth,
+  onViewHistory,
 }) => {
   const { user, userProfile } = useAuth();
   const [userName, setUserName] = useState<string>(userProfile?.displayName || '');
@@ -174,20 +176,35 @@ export const ConfirmationScreen: React.FC<ConfirmationScreenProps> = ({
 
           {/* Action Buttons */}
           <div className="space-y-3 pt-2">
+            <button
+              type="button"
+              onClick={() => {
+                if (onViewHistory) {
+                  onViewHistory();
+                } else {
+                  onBack();
+                }
+              }}
+              className="w-full py-3.5 px-4 bg-[#0D631B] hover:bg-[#0A4E15] text-white font-bold rounded-2xl text-xs shadow-sm flex items-center justify-center gap-2 transition cursor-pointer"
+            >
+              <FileText className="w-4 h-4" />
+              <span>Voir le statut de la commande</span>
+            </button>
+
             <a
               href={waUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full py-3.5 px-4 bg-[#0D631B] hover:bg-[#0A4E15] text-white font-bold rounded-2xl text-xs shadow-sm flex items-center justify-center gap-2 transition"
+              className="w-full py-3.5 px-4 bg-[#E8F3EA] hover:bg-[#D4E8D9] text-[#0D631B] font-bold rounded-2xl text-xs flex items-center justify-center gap-2 transition"
             >
               <MessageSquare className="w-4 h-4" />
-              <span>Ouvrir WhatsApp Dispatch Dabou</span>
+              <span>Contacter le Dispatch sur WhatsApp</span>
             </a>
 
             <button
               type="button"
               onClick={onBack}
-              className="w-full py-3 px-4 bg-[#F7F8FB] hover:bg-[#E8F3EA] text-[#111C2D] hover:text-[#0D631B] font-bold rounded-2xl text-xs border border-[#E4E9EE] transition"
+              className="w-full py-3 px-4 bg-[#F7F8FB] hover:bg-[#E8F3EA] text-[#111C2D] hover:text-[#0D631B] font-bold rounded-2xl text-xs border border-[#E4E9EE] transition cursor-pointer"
             >
               Passer une autre commande
             </button>

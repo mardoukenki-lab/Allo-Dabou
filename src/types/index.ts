@@ -70,3 +70,21 @@ export interface DabouLandmark {
   lng: number;
   description?: string;
 }
+
+declare global {
+  interface Window {
+    google?: {
+      maps?: {
+        DistanceMatrixService: new () => any;
+        Geocoder: new () => any;
+        TravelMode: {
+          DRIVING: any;
+        };
+        UnitSystem: {
+          METRIC: any;
+        };
+      };
+    };
+  }
+}
+

@@ -371,7 +371,7 @@ export async function calculateDrivingDistance(
 }
 
 /**
- * Gets GPS location from browser with French error handling
+ * Gets GPS location from browser with French error handling and smart Dabou address resolution
  */
 export function getCurrentUserCoordinates(): Promise<{ lat: number; lng: number; address: string }> {
   return new Promise((resolve, reject) => {
@@ -381,11 +381,11 @@ export function getCurrentUserCoordinates(): Promise<{ lat: number; lng: number;
     }
 
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      async (position) => {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
         
-        // Find closest Dabou landmark if nearby
+        // Find closest Dabou landmark
         let closestLandmark = DABOU_LANDMARKS[0];
         let minDistance = 999;
 
@@ -397,10 +397,43 @@ export function getCurrentUserCoordinates(): Promise<{ lat: number; lng: number;
           }
         });
 
-        const address =
-          minDistance < 0.5
-            ? `Ma position (près de ${closestLandmark.name})`
-            : `Position GPS (${lat.toFixed(4)}, ${lng.toFixed(4)} - Dabou)`;
+        let address = '';
+
+        // Try Google reverse geocoding if SDK is loaded
+        if (window.google?.maps?.Geocoder) {
+          try {
+            const geocoder = new window.google.maps.Geocoder();
+            const response = await new Promise<any>((res, rej) => {
+              geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+                if (status === 'OK' && results && results[0]) {
+                  res(results[0]);
+                } else {
+                  rej(status);
+                }
+              });
+            });
+
+            if (response && response.formatted_address) {
+              const cleanAddress = response.formatted_address
+                .replace(', Côte d\'Ivoire', '')
+                .replace(', Cote d\'Ivoire', '')
+                .replace(', Ivory Coast', '');
+              address = `Position GPS: ${cleanAddress}`;
+            }
+          } catch (e) {
+            // fallback to landmark matching
+          }
+        }
+
+        if (!address) {
+          if (minDistance <= 0.3) {
+            address = `${closestLandmark.name} (Position GPS)`;
+          } else if (minDistance <= 1.5) {
+            address = `Ma position (près de ${closestLandmark.name})`;
+          } else {
+            address = `Position GPS (${lat.toFixed(4)}, ${lng.toFixed(4)} - Dabou)`;
+          }
+        }
 
         resolve({ lat, lng, address });
       },

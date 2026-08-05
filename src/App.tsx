@@ -146,6 +146,7 @@ function MainApp() {
             onBack={() => setActiveTab('booking')}
             onRideBookedSuccess={handleRideBookedSuccess}
             onOpenAuth={() => setIsAuthModalOpen(true)}
+            onViewHistory={() => setActiveTab('history')}
           />
         )}
 
