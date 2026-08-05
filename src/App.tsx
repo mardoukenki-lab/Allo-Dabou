@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Header } from './components/Header';
-import { AndroidStatusBar } from './components/AndroidStatusBar';
 import { NavigationTabs } from './components/NavigationTabs';
 import { InstallPwaBanner } from './components/InstallPwaBanner';
 import { NotificationPermissionBanner } from './components/NotificationPermissionBanner';
@@ -117,9 +116,6 @@ function MainApp() {
 
   return (
     <div className="min-h-screen bg-[#F7F8FB] text-[#111C2D] flex flex-col font-sans relative pb-20">
-      {/* Native Android Material 3 System Status Bar */}
-      <AndroidStatusBar />
-
       {/* Floating In-App Live Notification Toast */}
       <InAppNotificationToast onNavigateTab={(tab) => setActiveTab(tab)} />
 
