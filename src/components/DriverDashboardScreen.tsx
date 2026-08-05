@@ -13,6 +13,7 @@ import {
   triggerBrowserNotification,
   generateWhatsAppDispatchUrl,
   registerFcmTokenForUser,
+  emitInAppNotification,
   DISPATCH_WHATSAPP_NUMBER
 } from '../services/notificationService';
 import { formatFcfa } from '../services/pricingService';
@@ -92,8 +93,12 @@ export const DriverDashboardScreen: React.FC<DriverDashboardScreenProps> = ({ on
             if (!knownPendingIds.current.has(ride.id)) {
               // Trigger loud driver sound chime & push notification!
               playDriverOrderChime();
-              triggerBrowserNotification(`🚖 NOUVELLE COURSE DABOU #${ride.id.slice(-5).toUpperCase()}`, {
-                body: `Départ: ${ride.pickupAddress}\nDestination: ${ride.destinationAddress}\nTarif: ${formatFcfa(ride.priceFcfa)}`,
+              emitInAppNotification({
+                title: `🚖 NOUVELLE COURSE DABOU #${ride.id.slice(-5).toUpperCase()}`,
+                body: `Départ: ${ride.pickupAddress} ➔ Destination: ${ride.destinationAddress} (${formatFcfa(ride.priceFcfa)})`,
+                type: 'driver_order',
+                targetTab: 'driver',
+                actionLabel: 'Accepter la course',
               });
             }
           });

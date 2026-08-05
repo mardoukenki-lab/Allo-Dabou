@@ -1,5 +1,6 @@
 import React from 'react';
 import { Compass, Clock, User, Bike } from 'lucide-react';
+import { triggerHaptic } from '../services/hapticService';
 
 interface NavigationTabsProps {
   activeTab: 'booking' | 'history' | 'account' | 'driver';
@@ -16,78 +17,122 @@ export const NavigationTabs: React.FC<NavigationTabsProps> = ({
   driverPendingCount = 0,
   showDriverTab = true,
 }) => {
+  const handleTabClick = (tab: 'booking' | 'history' | 'account' | 'driver') => {
+    triggerHaptic('selection');
+    onChangeTab(tab);
+  };
+
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-[#E5E5DE] shadow-sm sm:relative sm:border-t-0 sm:shadow-none sm:bg-transparent sm:pt-4">
-      <div className="max-w-lg mx-auto px-2 py-2 sm:px-0 flex items-center justify-around sm:gap-2 sm:justify-center">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#E4E9EE] shadow-lg pb-safe">
+      <div className="max-w-md mx-auto px-2 py-1.5 flex items-center justify-around gap-1">
         {/* Booking Tab */}
         <button
-          onClick={() => onChangeTab('booking')}
-          className={`flex-1 sm:flex-initial flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 px-3 py-2 rounded-2xl text-[10px] sm:text-xs font-bold uppercase tracking-wider transition ${
-            activeTab === 'booking'
-              ? 'bg-[#E8F3EA] text-[#0D631B] border border-[#D4E8D9]'
-              : 'text-[#5B6B7A] hover:text-[#111C2D] hover:bg-[#F7F8FB]'
-          }`}
+          type="button"
+          onClick={() => handleTabClick('booking')}
+          className="flex-1 min-h-[52px] flex flex-col items-center justify-center gap-1 rounded-2xl transition-all duration-200 active:scale-95 cursor-pointer group"
         >
-          <Compass className={`w-4 h-4 sm:w-5 sm:h-5 ${activeTab === 'booking' ? 'text-[#0D631B]' : 'text-[#5B6B7A]'}`} />
-          <span>Réserver</span>
+          <div
+            className={`px-5 py-1.5 rounded-full transition-all duration-200 flex items-center justify-center ${
+              activeTab === 'booking'
+                ? 'bg-[#0D631B] text-white shadow-sm'
+                : 'bg-transparent text-[#5B6B7A] group-hover:bg-[#F7F8FB]'
+            }`}
+          >
+            <Compass className={`w-5 h-5 ${activeTab === 'booking' ? 'text-white' : 'text-[#5B6B7A]'}`} />
+          </div>
+          <span
+            className={`text-[11px] font-bold tracking-tight transition-colors ${
+              activeTab === 'booking' ? 'text-[#0D631B] font-extrabold' : 'text-[#5B6B7A]'
+            }`}
+          >
+            Réserver
+          </span>
         </button>
 
         {/* History Tab */}
         <button
-          onClick={() => onChangeTab('history')}
-          className={`flex-1 sm:flex-initial flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 px-3 py-2 rounded-2xl text-[10px] sm:text-xs font-bold uppercase tracking-wider transition relative ${
-            activeTab === 'history'
-              ? 'bg-[#E8F3EA] text-[#0D631B] border border-[#D4E8D9]'
-              : 'text-[#5B6B7A] hover:text-[#111C2D] hover:bg-[#F7F8FB]'
-          }`}
+          type="button"
+          onClick={() => handleTabClick('history')}
+          className="flex-1 min-h-[52px] flex flex-col items-center justify-center gap-1 rounded-2xl transition-all duration-200 active:scale-95 cursor-pointer group"
         >
-          <div className="relative">
-            <Clock className={`w-4 h-4 sm:w-5 sm:h-5 ${activeTab === 'history' ? 'text-[#0D631B]' : 'text-[#5B6B7A]'}`} />
+          <div
+            className={`px-5 py-1.5 rounded-full transition-all duration-200 flex items-center justify-center relative ${
+              activeTab === 'history'
+                ? 'bg-[#0D631B] text-white shadow-sm'
+                : 'bg-transparent text-[#5B6B7A] group-hover:bg-[#F7F8FB]'
+            }`}
+          >
+            <Clock className={`w-5 h-5 ${activeTab === 'history' ? 'text-white' : 'text-[#5B6B7A]'}`} />
             {pendingRidesCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-[#0D631B] text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-white">
+              <span className="absolute -top-1 -right-1 bg-amber-400 text-[#111C2D] text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border-2 border-white shadow-xs">
                 {pendingRidesCount}
               </span>
             )}
           </div>
-          <span>Historique</span>
+          <span
+            className={`text-[11px] font-bold tracking-tight transition-colors ${
+              activeTab === 'history' ? 'text-[#0D631B] font-extrabold' : 'text-[#5B6B7A]'
+            }`}
+          >
+            Historique
+          </span>
         </button>
 
         {/* Driver Dashboard Tab */}
         {showDriverTab && (
           <button
-            onClick={() => onChangeTab('driver')}
-            className={`flex-1 sm:flex-initial flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 px-3 py-2 rounded-2xl text-[10px] sm:text-xs font-bold uppercase tracking-wider transition relative ${
-              activeTab === 'driver'
-                ? 'bg-amber-100 text-amber-900 border border-amber-300 font-extrabold'
-                : 'text-[#0D631B] bg-[#E8F3EA]/70 hover:bg-[#E8F3EA] border border-[#D4E8D9]'
-            }`}
+            type="button"
+            onClick={() => handleTabClick('driver')}
+            className="flex-1 min-h-[52px] flex flex-col items-center justify-center gap-1 rounded-2xl transition-all duration-200 active:scale-95 cursor-pointer group"
           >
-            <div className="relative">
-              <Bike className={`w-4 h-4 sm:w-5 sm:h-5 ${activeTab === 'driver' ? 'text-amber-900' : 'text-[#0D631B]'}`} />
+            <div
+              className={`px-5 py-1.5 rounded-full transition-all duration-200 flex items-center justify-center relative ${
+                activeTab === 'driver'
+                  ? 'bg-amber-500 text-[#111C2D] shadow-sm'
+                  : 'bg-amber-100/60 text-amber-900 group-hover:bg-amber-100'
+              }`}
+            >
+              <Bike className={`w-5 h-5 ${activeTab === 'driver' ? 'text-[#111C2D]' : 'text-amber-900'}`} />
               {driverPendingCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-amber-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-white animate-bounce">
+                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border-2 border-white animate-bounce">
                   {driverPendingCount}
                 </span>
               )}
             </div>
-            <span>Chauffeur</span>
+            <span
+              className={`text-[11px] font-bold tracking-tight transition-colors ${
+                activeTab === 'driver' ? 'text-amber-900 font-extrabold' : 'text-amber-800'
+              }`}
+            >
+              Chauffeur
+            </span>
           </button>
         )}
 
         {/* Account Tab */}
         <button
-          onClick={() => onChangeTab('account')}
-          className={`flex-1 sm:flex-initial flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 px-3 py-2 rounded-2xl text-[10px] sm:text-xs font-bold uppercase tracking-wider transition ${
-            activeTab === 'account'
-              ? 'bg-[#E8F3EA] text-[#0D631B] border border-[#D4E8D9]'
-              : 'text-[#5B6B7A] hover:text-[#111C2D] hover:bg-[#F7F8FB]'
-          }`}
+          type="button"
+          onClick={() => handleTabClick('account')}
+          className="flex-1 min-h-[52px] flex flex-col items-center justify-center gap-1 rounded-2xl transition-all duration-200 active:scale-95 cursor-pointer group"
         >
-          <User className={`w-4 h-4 sm:w-5 sm:h-5 ${activeTab === 'account' ? 'text-[#0D631B]' : 'text-[#5B6B7A]'}`} />
-          <span>Compte</span>
+          <div
+            className={`px-5 py-1.5 rounded-full transition-all duration-200 flex items-center justify-center ${
+              activeTab === 'account'
+                ? 'bg-[#0D631B] text-white shadow-sm'
+                : 'bg-transparent text-[#5B6B7A] group-hover:bg-[#F7F8FB]'
+            }`}
+          >
+            <User className={`w-5 h-5 ${activeTab === 'account' ? 'text-white' : 'text-[#5B6B7A]'}`} />
+          </div>
+          <span
+            className={`text-[11px] font-bold tracking-tight transition-colors ${
+              activeTab === 'account' ? 'text-[#0D631B] font-extrabold' : 'text-[#5B6B7A]'
+            }`}
+          >
+            Compte
+          </span>
         </button>
       </div>
-    </div>
+    </nav>
   );
 };
-

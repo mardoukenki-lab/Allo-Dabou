@@ -4,7 +4,41 @@ import { getMessagingInstance, db } from '../lib/firebase';
 import { getToken, onMessage } from 'firebase/messaging';
 import { doc, updateDoc } from 'firebase/firestore';
 
+// In-App Notification Dispatcher Types and Bus
+export interface InAppNotificationPayload {
+  id?: string;
+  title: string;
+  body: string;
+  type?: 'ride_accepted' | 'ride_completed' | 'driver_order' | 'info' | 'urgent';
+  targetTab?: 'booking' | 'confirm' | 'history' | 'account' | 'driver';
+  actionLabel?: string;
+}
+
+type NotificationListener = (payload: InAppNotificationPayload) => void;
+const inAppListeners: Set<NotificationListener> = new Set();
+
+export function subscribeInAppNotifications(listener: NotificationListener) {
+  inAppListeners.add(listener);
+  return () => {
+    inAppListeners.delete(listener);
+  };
+}
+
+export function emitInAppNotification(payload: InAppNotificationPayload) {
+  inAppListeners.forEach((listener) => {
+    try {
+      listener(payload);
+    } catch (e) {
+      console.error('Error emitting in-app notification:', e);
+    }
+  });
+
+  // Also trigger system browser push notification if permitted
+  triggerBrowserNotification(payload.title, { body: payload.body });
+}
+
 export const DISPATCH_WHATSAPP_NUMBER = '2250101682535'; // Official Dabou Dispatch & Support WhatsApp (0101682535)
+
 
 /**
  * Registers Firebase Cloud Messaging (FCM) Push Token for the current user

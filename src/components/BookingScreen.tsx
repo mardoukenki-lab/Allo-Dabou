@@ -26,6 +26,7 @@ import {
 } from '../services/mapsService';
 import { calculateRidePrice } from '../services/pricingService';
 import { DISPATCH_WHATSAPP_NUMBER } from '../services/notificationService';
+import { triggerHaptic } from '../services/hapticService';
 import { PricingCalculation, ServiceType, DabouLandmark } from '../types';
 
 interface BookingScreenProps {
@@ -205,8 +206,11 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
       <div className="bg-white rounded-[28px] p-2 border border-[#E5E5DE] shadow-xs flex gap-1">
         <button
           type="button"
-          onClick={() => setServiceType('taxi')}
-          className={`flex-1 py-2.5 px-3 rounded-2xl font-bold text-xs flex flex-col sm:flex-row items-center justify-center gap-1.5 transition ${
+          onClick={() => {
+            triggerHaptic('selection');
+            setServiceType('taxi');
+          }}
+          className={`flex-1 py-2.5 px-3 rounded-2xl font-bold text-xs flex flex-col sm:flex-row items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer ${
             serviceType === 'taxi' || serviceType === 'vtc'
               ? 'bg-[#0D631B] text-white shadow-xs'
               : 'text-[#5B6B7A] hover:bg-[#F7F8FB] hover:text-[#111C2D]'
@@ -218,8 +222,11 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
 
         <button
           type="button"
-          onClick={() => setServiceType('delivery')}
-          className={`flex-1 py-2.5 px-3 rounded-2xl font-bold text-xs flex flex-col sm:flex-row items-center justify-center gap-1.5 transition ${
+          onClick={() => {
+            triggerHaptic('selection');
+            setServiceType('delivery');
+          }}
+          className={`flex-1 py-2.5 px-3 rounded-2xl font-bold text-xs flex flex-col sm:flex-row items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer ${
             serviceType === 'delivery'
               ? 'bg-[#0D631B] text-white shadow-xs'
               : 'text-[#5B6B7A] hover:bg-[#F7F8FB] hover:text-[#111C2D]'
@@ -231,8 +238,11 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
 
         <button
           type="button"
-          onClick={() => setServiceType('concierge')}
-          className={`flex-1 py-2.5 px-3 rounded-2xl font-bold text-xs flex flex-col sm:flex-row items-center justify-center gap-1.5 transition ${
+          onClick={() => {
+            triggerHaptic('selection');
+            setServiceType('concierge');
+          }}
+          className={`flex-1 py-2.5 px-3 rounded-2xl font-bold text-xs flex flex-col sm:flex-row items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer ${
             serviceType === 'concierge'
               ? 'bg-[#0D631B] text-white shadow-xs'
               : 'text-[#5B6B7A] hover:bg-[#F7F8FB] hover:text-[#111C2D]'

@@ -23,7 +23,8 @@ import {
   generateWhatsAppDispatchUrl, 
   playClientAcceptedChime, 
   triggerBrowserNotification,
-  registerFcmTokenForUser
+  registerFcmTokenForUser,
+  emitInAppNotification
 } from '../services/notificationService';
 import { formatFcfa } from '../services/pricingService';
 import { Ride, RideStatus, ServiceType } from '../types';
@@ -97,8 +98,21 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
             if (oldStatus === 'pending' && ride.status === 'confirmed') {
               playClientAcceptedChime();
               const plateInfo = ride.driverVehiclePlate ? ` (Plaque: ${ride.driverVehiclePlate})` : '';
-              triggerBrowserNotification('🎉 Votre course a été acceptée !', {
-                body: `Votre chauffeur Dabou ${ride.driverName || 'Chauffeur VTC'}${plateInfo} est en route vers ${ride.pickupAddress}.`,
+              emitInAppNotification({
+                title: '🎉 Course confirmée !',
+                body: `Votre chauffeur Dabou ${ride.driverName || 'VTC'}${plateInfo} est en route vers ${ride.pickupAddress}.`,
+                type: 'ride_accepted',
+                targetTab: 'history',
+                actionLabel: 'Consulter la course',
+              });
+            } else if (oldStatus && oldStatus !== 'completed' && ride.status === 'completed') {
+              playClientAcceptedChime();
+              emitInAppNotification({
+                title: '✅ Course arrivée à destination',
+                body: `Votre trajet vers ${ride.destinationAddress} est terminé. Merci d'avoir choisi Allô Dabou !`,
+                type: 'ride_completed',
+                targetTab: 'history',
+                actionLabel: 'Laisser un avis (⭐)',
               });
             }
           });

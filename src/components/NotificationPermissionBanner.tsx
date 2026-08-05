@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Volume2, ShieldCheck, Check, Sparkles } from 'lucide-react';
-import { requestPushPermission, playDriverOrderChime, triggerBrowserNotification, unlockAudioContext } from '../services/notificationService';
+import { Bell, Volume2, ShieldCheck, Check, Sparkles, VolumeX } from 'lucide-react';
+import { requestPushPermission, playDriverOrderChime, triggerBrowserNotification, unlockAudioContext, emitInAppNotification } from '../services/notificationService';
 
 export const NotificationPermissionBanner: React.FC = () => {
   const [permissionState, setPermissionState] = useState<NotificationPermission | 'unsupported'>('default');
@@ -15,7 +15,7 @@ export const NotificationPermissionBanner: React.FC = () => {
     }
   }, []);
 
-  if (permissionState === 'granted' || permissionState === 'unsupported' || dismissed) {
+  if (dismissed || permissionState === 'unsupported') {
     return null;
   }
 
@@ -25,8 +25,10 @@ export const NotificationPermissionBanner: React.FC = () => {
     if (granted) {
       setPermissionState('granted');
       playDriverOrderChime();
-      triggerBrowserNotification('🔔 Alertes Sonores et Écran Verrouillé Activées', {
-        body: 'Vous recevrez désormais des signaux sonores forts et des notifications même lorsque l\'écran est verrouillé.',
+      emitInAppNotification({
+        title: '🔔 Alertes Sonores et Écran Verrouillé Activées !',
+        body: 'Vous recevrez désormais des signaux sonores forts et des bannières interactives en direct.',
+        type: 'info',
       });
     } else if (Notification.permission === 'denied') {
       setPermissionState('denied');
@@ -37,8 +39,32 @@ export const NotificationPermissionBanner: React.FC = () => {
     unlockAudioContext();
     playDriverOrderChime();
     setTestedSound(true);
+    emitInAppNotification({
+      title: '🔊 Test du Signal Sonore Allô Dabou VTC',
+      body: 'Le synthétiseur audio et les vibrations fonctionnent parfaitement sur votre appareil.',
+      type: 'info',
+    });
     setTimeout(() => setTestedSound(false), 3000);
   };
+
+  if (permissionState === 'granted') {
+    return (
+      <div className="bg-[#0D631B]/10 border-b border-[#0D631B]/20 text-[#0D631B] px-4 py-2 text-xs flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-[#0D631B] shrink-0" />
+          <span className="font-bold">Notifications & Alertes Sonores : <strong className="text-[#0D631B]">Activées</strong></span>
+        </div>
+        <button
+          type="button"
+          onClick={handleTestSound}
+          className="bg-[#0D631B] hover:bg-[#0A4E15] text-white font-bold px-2.5 py-1 rounded-xl text-[11px] flex items-center gap-1 transition shadow-2xs"
+        >
+          <Volume2 className="w-3 h-3 text-amber-300" />
+          <span>{testedSound ? '🔊 Test en cours...' : 'Tester le son'}</span>
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gradient-to-r from-[#111C2D] via-[#1A2B42] to-[#0D631B] text-white p-3.5 sm:px-5 sm:py-3 shadow-md border-b border-white/10 text-xs flex flex-col sm:flex-row items-center justify-between gap-3 animate-in fade-in slide-in-from-top duration-300">
@@ -88,3 +114,4 @@ export const NotificationPermissionBanner: React.FC = () => {
     </div>
   );
 };
+

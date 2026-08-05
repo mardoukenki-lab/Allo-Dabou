@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Header } from './components/Header';
+import { AndroidStatusBar } from './components/AndroidStatusBar';
 import { NavigationTabs } from './components/NavigationTabs';
 import { InstallPwaBanner } from './components/InstallPwaBanner';
 import { NotificationPermissionBanner } from './components/NotificationPermissionBanner';
+import { InAppNotificationToast } from './components/InAppNotificationToast';
 import { BookingScreen } from './components/BookingScreen';
 import { ConfirmationScreen } from './components/ConfirmationScreen';
 import { HistoryScreen } from './components/HistoryScreen';
@@ -114,7 +116,13 @@ function MainApp() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F8FB] text-[#111C2D] flex flex-col font-sans">
+    <div className="min-h-screen bg-[#F7F8FB] text-[#111C2D] flex flex-col font-sans relative pb-20">
+      {/* Native Android Material 3 System Status Bar */}
+      <AndroidStatusBar />
+
+      {/* Floating In-App Live Notification Toast */}
+      <InAppNotificationToast onNavigateTab={(tab) => setActiveTab(tab)} />
+
       {/* PWA Install Banner */}
       <InstallPwaBanner />
 
@@ -131,7 +139,7 @@ function MainApp() {
       <NotificationPermissionBanner />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-lg w-full mx-auto px-4 pt-4 sm:pt-6">
+      <main className="flex-1 max-w-lg w-full mx-auto px-4 pt-4 sm:pt-6 pb-24">
         {activeTab === 'booking' && (
           <BookingScreen
             onContinueToConfirmation={handleContinueToConfirmation}
