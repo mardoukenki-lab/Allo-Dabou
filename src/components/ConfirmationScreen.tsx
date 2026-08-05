@@ -162,6 +162,21 @@ export const ConfirmationScreen: React.FC<ConfirmationScreenProps> = ({
               </div>
             )}
 
+            {bookedRide.driverName && (
+              <div className="border-b border-[#E5E5DE] pb-2 space-y-1">
+                <div className="flex justify-between">
+                  <span className="text-[#5B6B7A] font-medium">Chauffeur assigné :</span>
+                  <span className="font-bold text-[#111C2D]">{bookedRide.driverName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#5B6B7A] font-medium">Plaque d'immatriculation :</span>
+                  <span className="font-mono font-extrabold text-[#0D631B]">
+                    {bookedRide.driverVehiclePlate || 'En attente'}
+                  </span>
+                </div>
+              </div>
+            )}
+
             <div className="flex justify-between border-b border-[#E5E5DE] pb-2">
               <span className="text-[#5B6B7A] font-medium">Distance :</span>
               <span className="font-bold text-[#111C2D]">{bookedRide.distanceKm} km</span>

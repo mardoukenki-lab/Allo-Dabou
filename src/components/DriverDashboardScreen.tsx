@@ -146,10 +146,12 @@ export const DriverDashboardScreen: React.FC<DriverDashboardScreenProps> = ({ on
     try {
       const driverName = userProfile?.displayName || user.email?.split('@')[0] || 'Chauffeur Dabou';
       const driverPhone = userProfile?.phone || '0700000000';
+      const driverVehiclePlate = userProfile?.vehicleNumber || '';
       await acceptRideByDriver(ride.id, {
         driverId: user.uid,
         driverName,
         driverPhone,
+        driverVehiclePlate,
       });
 
       // Send push notification trigger

@@ -40,6 +40,7 @@ export interface Ride {
   driverId?: string;
   driverName?: string;
   driverPhone?: string;
+  driverVehiclePlate?: string;
   acceptedAt?: any;
   createdAt: any;
   updatedAt?: any;

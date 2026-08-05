@@ -153,6 +153,7 @@ export function subscribeUserRides(
           driverId: data.driverId,
           driverName: data.driverName,
           driverPhone: data.driverPhone,
+          driverVehiclePlate: data.driverVehiclePlate || '',
           acceptedAt: data.acceptedAt?.toDate ? data.acceptedAt.toDate() : undefined,
           createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(),
           updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : new Date(),
@@ -213,6 +214,7 @@ export function subscribeAllRides(
           driverId: data.driverId,
           driverName: data.driverName,
           driverPhone: data.driverPhone,
+          driverVehiclePlate: data.driverVehiclePlate || '',
           acceptedAt: data.acceptedAt?.toDate ? data.acceptedAt.toDate() : undefined,
           createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(),
           updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : new Date(),
@@ -240,7 +242,7 @@ export function subscribeAllRides(
  */
 export async function acceptRideByDriver(
   rideId: string,
-  driverInfo: { driverId: string; driverName: string; driverPhone: string }
+  driverInfo: { driverId: string; driverName: string; driverPhone: string; driverVehiclePlate?: string }
 ): Promise<void> {
   const rideRef = doc(db, RIDES_COLLECTION, rideId);
   await updateDoc(rideRef, {
@@ -248,6 +250,7 @@ export async function acceptRideByDriver(
     driverId: driverInfo.driverId,
     driverName: driverInfo.driverName,
     driverPhone: driverInfo.driverPhone,
+    driverVehiclePlate: driverInfo.driverVehiclePlate || '',
     acceptedAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
