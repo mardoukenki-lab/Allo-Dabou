@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Mail, Lock, User, Phone, Loader2, Bike, KeyRound, AlertCircle, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { Mail, Lock, User, Phone, Loader2, Bike, KeyRound, AlertCircle, CheckCircle2, ShieldCheck, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { generateLicensePlate } from '../lib/plateGenerator';
 
 type AuthMode = 'login' | 'register' | 'forgot';
 
@@ -60,13 +61,13 @@ export const LoginScreen: React.FC = () => {
           setLoading(false);
           return;
         }
-        if (accountType === 'driver' && !vehicleNumber.trim()) {
-          setErrorMsg('Veuillez indiquer la plaque ou le numéro d’engin/moto.');
-          setLoading(false);
-          return;
+        let finalVehicle = vehicleNumber.trim();
+        if (accountType === 'driver' && !finalVehicle) {
+          finalVehicle = generateLicensePlate();
+          setVehicleNumber(finalVehicle);
         }
 
-        await register(email, password, name, phone, accountType, vehicleNumber);
+        await register(email, password, name, phone, accountType, finalVehicle);
         
         if (accountType === 'driver' && email.trim().toLowerCase() !== 'mardoukenki@gmail.com') {
           setSuccessMsg('Compte chauffeur créé avec succès ! Votre compte sera validé par l’administrateur Dabou.');
@@ -209,19 +210,29 @@ export const LoginScreen: React.FC = () => {
               {accountType === 'driver' && (
                 <div className="bg-amber-50/90 p-3.5 rounded-2xl border border-amber-200 space-y-2">
                   <div>
-                    <label className="text-[11px] font-bold text-amber-900 block mb-1">Plaque / Numéro Engin Moto</label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[11px] font-bold text-amber-900 block">Plaque d'Immatriculation Moto</label>
+                      <button
+                        type="button"
+                        onClick={() => setVehicleNumber(generateLicensePlate())}
+                        className="text-[10px] font-bold text-[#0D631B] bg-white border border-[#0D631B]/30 hover:bg-[#E8F3EA] px-2 py-0.5 rounded-lg flex items-center gap-1 transition"
+                      >
+                        <Sparkles className="w-3 h-3 text-[#0D631B]" />
+                        <span>Générer plaque</span>
+                      </button>
+                    </div>
                     <input
                       type="text"
                       required
                       value={vehicleNumber}
                       onChange={(e) => setVehicleNumber(e.target.value)}
-                      placeholder="Ex: Moto TVS - 4522 DB 01"
-                      className="w-full px-3 py-2 bg-white border border-amber-300 rounded-xl text-xs font-medium outline-none focus:border-amber-600 text-[#111C2D]"
+                      placeholder="Ex: DB-4829-CI01"
+                      className="w-full px-3 py-2 bg-white border border-amber-300 rounded-xl text-xs font-mono font-bold outline-none focus:border-amber-600 text-[#111C2D]"
                     />
                   </div>
                   <p className="text-[10px] text-amber-800 leading-tight flex items-start gap-1">
                     <ShieldCheck className="w-3.5 h-3.5 text-amber-700 shrink-0 mt-0.5" />
-                    <span><span className="font-bold">Validation obligatoire:</span> L'administration Dabou validera votre profil chauffeur avant activation.</span>
+                    <span><span className="font-bold">Générateur automatique :</span> Vous pouvez générer une plaque conforme Allô Dabou ou saisir la vôtre.</span>
                   </p>
                 </div>
               )}

@@ -12,10 +12,12 @@ import {
   HelpCircle, 
   Info,
   Bike,
-  AlertCircle
+  AlertCircle,
+  Sparkles
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { DISPATCH_WHATSAPP_NUMBER } from '../services/notificationService';
+import { generateLicensePlate } from '../lib/plateGenerator';
 
 interface AccountScreenProps {
   onOpenAuth: () => void;
@@ -96,11 +98,14 @@ export const AccountScreen: React.FC<AccountScreenProps> = ({ onOpenAuth }) => {
 
   const handleRequestDriver = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!vehicleNumber.trim()) return;
+    const finalPlate = vehicleNumber.trim() || generateLicensePlate();
+    if (!vehicleNumber.trim()) {
+      setVehicleNumber(finalPlate);
+    }
     setIsSubmittingDriverReq(true);
     setDriverReqSuccess(false);
     try {
-      await requestDriverRole(vehicleNumber);
+      await requestDriverRole(finalPlate);
       setDriverReqSuccess(true);
     } catch (err: any) {
       alert('Erreur lors de la demande chauffeur: ' + (err.message || String(err)));
@@ -193,13 +198,23 @@ export const AccountScreen: React.FC<AccountScreenProps> = ({ onOpenAuth }) => {
               Vous souhaitez devenir chauffeur de taxi-moto Allô Dabou VTC ? Renseignez votre numéro d'engin ci-dessous pour soumettre votre demande à l'administrateur.
             </p>
             <form onSubmit={handleRequestDriver} className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-bold text-[#111C2D]">Plaque d'immatriculation / Engin Moto</label>
+                <button
+                  type="button"
+                  onClick={() => setVehicleNumber(generateLicensePlate())}
+                  className="text-[10px] font-bold text-[#0D631B] bg-white border border-[#0D631B]/30 hover:bg-[#E8F3EA] px-2 py-0.5 rounded-lg flex items-center gap-1 transition"
+                >
+                  <Sparkles className="w-3 h-3 text-[#0D631B]" />
+                  <span>Générer plaque</span>
+                </button>
+              </div>
               <input
                 type="text"
-                required
                 value={vehicleNumber}
                 onChange={(e) => setVehicleNumber(e.target.value)}
-                placeholder="Plaque ou marque moto (Ex: Moto TVS 4522 DB)"
-                className="w-full px-3.5 py-2.5 bg-white border border-[#E4E9EE] rounded-xl text-xs font-medium outline-none focus:border-[#0D631B]"
+                placeholder="Ex: DB-4829-CI01"
+                className="w-full px-3.5 py-2.5 bg-white border border-[#E4E9EE] rounded-xl text-xs font-mono font-bold outline-none focus:border-[#0D631B]"
               />
               <button
                 type="submit"

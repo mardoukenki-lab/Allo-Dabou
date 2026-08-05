@@ -11,6 +11,7 @@ import {
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { UserProfile } from '../types';
+import { generateLicensePlate } from '../lib/plateGenerator';
 
 interface AuthContextType {
   user: User | null;
@@ -21,7 +22,7 @@ interface AuthContextType {
   isApprovedDriver: boolean;
   login: (email: string, pass: string) => Promise<void>;
   register: (email: string, pass: string, name: string, phone: string, requestedRole?: 'client' | 'driver', vehicleNumber?: string) => Promise<void>;
-  requestDriverRole: (vehicleNumber: string) => Promise<void>;
+  requestDriverRole: (vehicleNumber?: string) => Promise<void>;
   approveDriverByAdmin: (driverUid: string, approve: boolean) => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
@@ -101,6 +102,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const isApprovedDriver = isSystemAdmin || (requestedRole === 'driver' ? false : undefined);
       const approved = isSystemAdmin || (requestedRole === 'driver' ? false : undefined);
 
+      let finalVehicleNumber = vehicleNumber?.trim() || '';
+      if ((role === 'driver' || requestedRole === 'driver') && !finalVehicleNumber) {
+        finalVehicleNumber = generateLicensePlate();
+      }
+
       const newProfile: UserProfile = {
         uid: res.user.uid,
         email: cleanEmail,
@@ -109,7 +115,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         role,
         isApprovedDriver,
         approved,
-        vehicleNumber: vehicleNumber?.trim() || '',
+        vehicleNumber: finalVehicleNumber,
       };
 
       await setDoc(doc(db, 'users', res.user.uid), {
@@ -120,14 +126,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const requestDriverRole = async (vehicleNumber: string) => {
+  const requestDriverRole = async (vehicleNumber?: string) => {
     if (!user) return;
+    const finalPlate = vehicleNumber?.trim() || generateLicensePlate();
     const userRef = doc(db, 'users', user.uid);
     await updateDoc(userRef, {
       role: 'driver',
       isApprovedDriver: false,
       approved: false,
-      vehicleNumber: vehicleNumber.trim(),
+      vehicleNumber: finalPlate,
       requestedDriverAt: serverTimestamp(),
     });
     setUserProfile((prev) => (prev ? {
@@ -135,7 +142,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       role: 'driver',
       isApprovedDriver: false,
       approved: false,
-      vehicleNumber: vehicleNumber.trim(),
+      vehicleNumber: finalPlate,
     } : null));
   };
 
