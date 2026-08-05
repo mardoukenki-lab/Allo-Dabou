@@ -10,10 +10,12 @@ import {
   Bike, 
   Package,
   KeyRound,
-  AlertCircle 
+  AlertCircle,
+  Star
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { createRide } from '../services/rideService';
+import { RideRatingModal } from './RideRatingModal';
 import { generateWhatsAppDispatchUrl, notifyTeamNewBooking } from '../services/notificationService';
 import { PricingCalculation, Ride, ServiceType } from '../types';
 
@@ -51,6 +53,7 @@ export const ConfirmationScreen: React.FC<ConfirmationScreenProps> = ({
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [bookedRide, setBookedRide] = useState<Ride | null>(null);
+  const [showRatingModal, setShowRatingModal] = useState<boolean>(false);
 
   const handleConfirmRide = async () => {
     if (!user) {
@@ -216,6 +219,38 @@ export const ConfirmationScreen: React.FC<ConfirmationScreenProps> = ({
               <span>Contacter le Dispatch sur WhatsApp</span>
             </a>
 
+            {bookedRide.status === 'completed' && (
+              <div className="pt-2">
+                {bookedRide.rating ? (
+                  <div className="bg-amber-50 p-3 rounded-2xl border border-amber-200 text-xs flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-bold text-[#111C2D]">Votre avis :</span>
+                      <div className="flex text-amber-500">
+                        {[1, 2, 3, 4, 5].map((s) => (
+                          <Star
+                            key={s}
+                            className={`w-3.5 h-3.5 ${
+                              s <= (bookedRide.rating || 0) ? 'fill-amber-400 text-amber-400' : 'text-gray-300'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <span className="font-extrabold text-amber-900">({bookedRide.rating}/5)</span>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setShowRatingModal(true)}
+                    className="w-full py-3.5 px-4 bg-amber-400 hover:bg-amber-500 text-amber-950 font-extrabold rounded-2xl text-xs shadow-xs flex items-center justify-center gap-2 transition cursor-pointer"
+                  >
+                    <Star className="w-4 h-4 fill-amber-950" />
+                    <span>Évaluer votre chauffeur (1 à 5 ⭐)</span>
+                  </button>
+                )}
+              </div>
+            )}
+
             <button
               type="button"
               onClick={onBack}
@@ -225,6 +260,14 @@ export const ConfirmationScreen: React.FC<ConfirmationScreenProps> = ({
             </button>
           </div>
         </div>
+
+        {showRatingModal && (
+          <RideRatingModal
+            ride={bookedRide}
+            isOpen={showRatingModal}
+            onClose={() => setShowRatingModal(false)}
+          />
+        )}
       </div>
     );
   }

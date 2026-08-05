@@ -120,7 +120,7 @@ export async function notifyTeamNewBooking(ride: Ride): Promise<boolean> {
  */
 let audioCtx: AudioContext | null = null;
 
-function getAudioContext(): AudioContext | null {
+export function getAudioContext(): AudioContext | null {
   if (typeof window === 'undefined') return null;
   if (!audioCtx) {
     const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
@@ -135,79 +135,115 @@ function getAudioContext(): AudioContext | null {
 }
 
 /**
- * Plays a loud double chime for Driver when a new ride arrives
+ * Ensures AudioContext is unlocked by user interaction
+ */
+export function unlockAudioContext() {
+  const ctx = getAudioContext();
+  if (ctx && ctx.state === 'suspended') {
+    ctx.resume().catch(() => {});
+  }
+}
+
+if (typeof window !== 'undefined') {
+  const unlockEvents = ['click', 'touchstart', 'touchend', 'keydown'];
+  const handleUnlock = () => {
+    unlockAudioContext();
+    unlockEvents.forEach((evt) => window.removeEventListener(evt, handleUnlock));
+  };
+  unlockEvents.forEach((evt) => window.addEventListener(evt, handleUnlock, { passive: true }));
+
+  // Auto-register service worker for lockscreen notifications
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch((err) => {
+      console.warn('Service worker registration failed:', err);
+    });
+  }
+}
+
+/**
+ * Plays a high-volume repeating horn / siren alert for Driver when a new ride arrives
  */
 export function playDriverOrderChime() {
   try {
+    unlockAudioContext();
     const ctx = getAudioContext();
     if (!ctx) return;
 
-    const now = ctx.currentTime;
+    const startTime = ctx.currentTime;
     
-    // Note 1: E5 (659.25Hz)
-    const osc1 = ctx.createOscillator();
-    const gain1 = ctx.createGain();
-    osc1.type = 'sine';
-    osc1.frequency.setValueAtTime(659.25, now);
-    gain1.gain.setValueAtTime(0.4, now);
-    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-    osc1.connect(gain1);
-    gain1.connect(ctx.destination);
-    osc1.start(now);
-    osc1.stop(now + 0.3);
+    // Play 3 loud siren pulses (duration ~2.1 seconds)
+    for (let pulse = 0; pulse < 3; pulse++) {
+      const pStart = startTime + pulse * 0.7;
 
-    // Note 2: A5 (880Hz)
-    const osc2 = ctx.createOscillator();
-    const gain2 = ctx.createGain();
-    osc2.type = 'sine';
-    osc2.frequency.setValueAtTime(880, now + 0.15);
-    gain2.gain.setValueAtTime(0.5, now + 0.15);
-    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
-    osc2.connect(gain2);
-    gain2.connect(ctx.destination);
-    osc2.start(now + 0.15);
-    osc2.stop(now + 0.6);
+      // High siren oscillator 1
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'sawtooth';
+      osc1.frequency.setValueAtTime(880, pStart); // A5
+      osc1.frequency.exponentialRampToValueAtTime(1318.51, pStart + 0.25); // E6
+      
+      gain1.gain.setValueAtTime(0.8, pStart);
+      gain1.gain.exponentialRampToValueAtTime(0.01, pStart + 0.5);
 
-    // Note 3: C#6 (1108.73Hz)
-    const osc3 = ctx.createOscillator();
-    const gain3 = ctx.createGain();
-    osc3.type = 'triangle';
-    osc3.frequency.setValueAtTime(1108.73, now + 0.35);
-    gain3.gain.setValueAtTime(0.6, now + 0.35);
-    gain3.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
-    osc3.connect(gain3);
-    gain3.connect(ctx.destination);
-    osc3.start(now + 0.35);
-    osc3.stop(now + 0.9);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.start(pStart);
+      osc1.stop(pStart + 0.5);
+
+      // Low harmonic oscillator 2
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'square';
+      osc2.frequency.setValueAtTime(659.25, pStart + 0.1); // E5
+      osc2.frequency.exponentialRampToValueAtTime(1046.50, pStart + 0.35); // C6
+
+      gain2.gain.setValueAtTime(0.7, pStart + 0.1);
+      gain2.gain.exponentialRampToValueAtTime(0.01, pStart + 0.55);
+
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.start(pStart + 0.1);
+      osc2.stop(pStart + 0.55);
+    }
+
+    // Trigger physical device vibration
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      navigator.vibrate([600, 150, 600, 150, 600, 150, 1000]);
+    }
   } catch (e) {
     console.warn('Audio chime playback failed:', e);
   }
 }
 
 /**
- * Plays a pleasant success chime for Client when ride is accepted
+ * Plays a pleasant high-volume success chime for Client when ride is accepted
  */
 export function playClientAcceptedChime() {
   try {
+    unlockAudioContext();
     const ctx = getAudioContext();
     if (!ctx) return;
 
     const now = ctx.currentTime;
     
-    // Chord G4 -> B4 -> D5
-    const freqs = [392.00, 493.88, 587.33];
+    // Chord G4 -> B4 -> D5 -> G5 bright chord
+    const freqs = [392.00, 493.88, 587.33, 783.99];
     freqs.forEach((freq, index) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, now + index * 0.1);
-      gain.gain.setValueAtTime(0.4, now + index * 0.1);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + index * 0.1 + 0.5);
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, now + index * 0.12);
+      gain.gain.setValueAtTime(0.7, now + index * 0.12);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + index * 0.12 + 0.7);
       osc.connect(gain);
       gain.connect(ctx.destination);
-      osc.start(now + index * 0.1);
-      osc.stop(now + index * 0.1 + 0.5);
+      osc.start(now + index * 0.12);
+      osc.stop(now + index * 0.12 + 0.7);
     });
+
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      navigator.vibrate([300, 100, 300, 100, 500]);
+    }
   } catch (e) {
     console.warn('Client chime playback failed:', e);
   }
@@ -234,20 +270,37 @@ export async function requestPushPermission(): Promise<boolean> {
 }
 
 /**
- * Triggers a browser push notification
+ * Triggers a browser/service worker lock screen notification
  */
-export function triggerBrowserNotification(title: string, options?: NotificationOptions) {
+export async function triggerBrowserNotification(title: string, options?: NotificationOptions) {
   if (typeof window === 'undefined' || !('Notification' in window)) return;
 
   if (Notification.permission === 'granted') {
     try {
-      new Notification(title, {
-        icon: '/favicon.ico',
-        badge: '/favicon.ico',
+      const defaultOptions: NotificationOptions & Record<string, any> = {
+        icon: '/pwa-icon.svg',
+        badge: '/pwa-icon.svg',
+        vibrate: [600, 150, 600, 150, 600, 150, 1000],
+        requireInteraction: true,
+        renotify: true,
+        tag: 'allo-dabou-ride-alert',
         ...options,
-      });
+      };
+
+      // Prefer Service Worker registration for Lock Screen & Background push
+      if ('serviceWorker' in navigator) {
+        const registration = await navigator.serviceWorker.ready.catch(() => null);
+        if (registration && 'showNotification' in registration) {
+          await registration.showNotification(title, defaultOptions);
+          return;
+        }
+      }
+
+      // Fallback to standard window Notification
+      new Notification(title, defaultOptions);
     } catch (err) {
-      console.warn('Browser push error:', err);
+      console.warn('Browser push notification error:', err);
     }
   }
 }
+

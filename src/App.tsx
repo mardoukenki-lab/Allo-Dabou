@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { Header } from './components/Header';
 import { NavigationTabs } from './components/NavigationTabs';
 import { InstallPwaBanner } from './components/InstallPwaBanner';
+import { NotificationPermissionBanner } from './components/NotificationPermissionBanner';
 import { BookingScreen } from './components/BookingScreen';
 import { ConfirmationScreen } from './components/ConfirmationScreen';
 import { HistoryScreen } from './components/HistoryScreen';
@@ -125,6 +126,9 @@ function MainApp() {
         }}
         activeTab={activeTab}
       />
+
+      {/* Notification and Lock Screen Sound Alert Banner */}
+      <NotificationPermissionBanner />
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-lg w-full mx-auto px-4 pt-4 sm:pt-6">

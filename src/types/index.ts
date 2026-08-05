@@ -12,6 +12,9 @@ export interface UserProfile {
   approved?: boolean;
   vehicleNumber?: string;
   fcmToken?: string;
+  ratingAverage?: number;
+  ratingCount?: number;
+  totalRatingSum?: number;
   requestedDriverAt?: any;
   createdAt?: any;
 }
@@ -41,6 +44,9 @@ export interface Ride {
   driverName?: string;
   driverPhone?: string;
   driverVehiclePlate?: string;
+  rating?: number;
+  ratingComment?: string;
+  ratedAt?: any;
   acceptedAt?: any;
   createdAt: any;
   updatedAt?: any;

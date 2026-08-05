@@ -154,6 +154,9 @@ export function subscribeUserRides(
           driverName: data.driverName,
           driverPhone: data.driverPhone,
           driverVehiclePlate: data.driverVehiclePlate || '',
+          rating: data.rating,
+          ratingComment: data.ratingComment,
+          ratedAt: data.ratedAt?.toDate ? data.ratedAt.toDate() : undefined,
           acceptedAt: data.acceptedAt?.toDate ? data.acceptedAt.toDate() : undefined,
           createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(),
           updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : new Date(),
@@ -215,6 +218,9 @@ export function subscribeAllRides(
           driverName: data.driverName,
           driverPhone: data.driverPhone,
           driverVehiclePlate: data.driverVehiclePlate || '',
+          rating: data.rating,
+          ratingComment: data.ratingComment,
+          ratedAt: data.ratedAt?.toDate ? data.ratedAt.toDate() : undefined,
           acceptedAt: data.acceptedAt?.toDate ? data.acceptedAt.toDate() : undefined,
           createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(),
           updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : new Date(),
@@ -294,4 +300,60 @@ export async function cancelRide(rideId: string, userId: string): Promise<void> 
     status: 'cancelled',
     updatedAt: serverTimestamp(),
   });
+}
+
+/**
+ * Submits a 1-5 star rating for a completed ride and updates the driver's rating average in Firestore
+ */
+export async function submitRideRating(
+  rideId: string,
+  rating: number,
+  ratingComment?: string
+): Promise<void> {
+  if (rating < 1 || rating > 5) {
+    throw new Error('La note doit être comprise entre 1 et 5 étoiles.');
+  }
+
+  const rideRef = doc(db, RIDES_COLLECTION, rideId);
+  const snap = await getDoc(rideRef);
+
+  if (!snap.exists()) {
+    throw new Error('Course non trouvée.');
+  }
+
+  const rideData = snap.data();
+  if (rideData.rating) {
+    throw new Error('Cette course a déjà été évaluée.');
+  }
+
+  // 1. Save rating on the ride document
+  await updateDoc(rideRef, {
+    rating,
+    ratingComment: ratingComment?.trim() || '',
+    ratedAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+
+  // 2. If driver is assigned, calculate and update driver's rating average in Firestore 'users' collection
+  if (rideData.driverId) {
+    const driverRef = doc(db, 'users', rideData.driverId);
+    const driverSnap = await getDoc(driverRef);
+
+    if (driverSnap.exists()) {
+      const driverData = driverSnap.data();
+      const currentCount = Number(driverData.ratingCount || 0);
+      const currentSum = Number(driverData.totalRatingSum || 0);
+
+      const newCount = currentCount + 1;
+      const newSum = currentSum + rating;
+      const newAverage = Math.round((newSum / newCount) * 10) / 10;
+
+      await updateDoc(driverRef, {
+        ratingAverage: newAverage,
+        ratingCount: newCount,
+        totalRatingSum: newSum,
+        updatedAt: serverTimestamp(),
+      });
+    }
+  }
 }

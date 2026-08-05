@@ -12,6 +12,9 @@
         "isApprovedDriver": { "type": "boolean" },
         "vehicleNumber": { "type": "string" },
         "fcmToken": { "type": "string" },
+        "ratingAverage": { "type": "number" },
+        "ratingCount": { "type": "number" },
+        "totalRatingSum": { "type": "number" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["email"]
@@ -38,6 +41,10 @@
         "driverId": { "type": "string" },
         "driverName": { "type": "string" },
         "driverPhone": { "type": "string" },
+        "driverVehiclePlate": { "type": "string" },
+        "rating": { "type": "number" },
+        "ratingComment": { "type": "string" },
+        "ratedAt": { "type": "string", "format": "date-time" },
         "acceptedAt": { "type": "string", "format": "date-time" },
         "notes": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" },

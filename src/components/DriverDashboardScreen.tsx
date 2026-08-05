@@ -36,7 +36,8 @@ import {
   Power,
   Users,
   UserCheck,
-  UserX
+  UserX,
+  Star
 } from 'lucide-react';
 
 interface DriverDashboardScreenProps {
@@ -288,6 +289,11 @@ export const DriverDashboardScreen: React.FC<DriverDashboardScreenProps> = ({ on
               <span className="text-xs text-white/80 font-medium">
                 {user.email}
               </span>
+              <span className="bg-amber-400/20 text-amber-200 border border-amber-300/40 px-2.5 py-1 rounded-full text-[11px] font-extrabold flex items-center gap-1">
+                <Star className="w-3.5 h-3.5 fill-amber-300 text-amber-300" />
+                <span>{userProfile?.ratingAverage ? `${userProfile.ratingAverage}/5` : '5.0/5'}</span>
+                <span className="text-white/70 text-[10px]">({userProfile?.ratingCount || 0} avis)</span>
+              </span>
             </div>
 
             {/* Availability Toggle */}
@@ -334,7 +340,7 @@ export const DriverDashboardScreen: React.FC<DriverDashboardScreenProps> = ({ on
       </div>
 
       {/* KPI Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         <div 
           onClick={() => setFilter('pending')}
           className={`p-3.5 rounded-2xl border transition cursor-pointer ${
@@ -390,6 +396,19 @@ export const DriverDashboardScreen: React.FC<DriverDashboardScreenProps> = ({ on
           <p className="text-lg font-black text-[#111C2D] mt-1 font-serif-heading truncate">
             {formatFcfa(todayEarningsFcfa)}
           </p>
+        </div>
+
+        <div className="p-3.5 bg-amber-50/50 rounded-2xl border border-amber-200 col-span-2 sm:col-span-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold uppercase text-amber-900">Note Moyenne</span>
+            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+          </div>
+          <p className="text-lg font-black text-amber-700 mt-1 font-serif-heading">
+            {userProfile?.ratingAverage ? `${userProfile.ratingAverage}/5` : '5.0/5'}
+          </p>
+          <span className="text-[10px] text-[#5B6B7A] block font-medium">
+            {userProfile?.ratingCount ? `${userProfile.ratingCount} avis client` : 'Aucun avis'}
+          </span>
         </div>
       </div>
 

@@ -11,10 +11,12 @@ import {
   ChevronRight,
   RefreshCw,
   PhoneCall,
-  UserCheck
+  UserCheck,
+  Star
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { subscribeUserRides, cancelRide } from '../services/rideService';
+import { RideRatingModal } from './RideRatingModal';
 import { 
   generateWhatsAppDispatchUrl, 
   playClientAcceptedChime, 
@@ -64,6 +66,7 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
   const [filter, setFilter] = useState<'all' | RideStatus>('all');
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [selectedRideForRating, setSelectedRideForRating] = useState<Ride | null>(null);
 
   const prevStatuses = useRef<Record<string, RideStatus>>({});
   const initialClientLoad = useRef<boolean>(false);
@@ -356,6 +359,55 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
                   </div>
                 )}
 
+                {/* Driver Rating Section (for Completed Rides) */}
+                {ride.status === 'completed' && (
+                  <div>
+                    {ride.rating ? (
+                      <div className="bg-amber-50/80 p-3 rounded-2xl border border-amber-200 text-xs flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-[#111C2D]">Votre avis :</span>
+                          <div className="flex items-center text-amber-500">
+                            {[1, 2, 3, 4, 5].map((s) => (
+                              <Star
+                                key={s}
+                                className={`w-3.5 h-3.5 ${
+                                  s <= (ride.rating || 0)
+                                    ? 'fill-amber-400 text-amber-400'
+                                    : 'text-gray-300'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <span className="font-extrabold text-amber-900">({ride.rating}/5)</span>
+                        </div>
+                        {ride.ratingComment && (
+                          <span className="text-[11px] text-[#5B6B7A] italic truncate max-w-[150px]">
+                            "{ride.ratingComment}"
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="bg-amber-50 p-3 rounded-2xl border border-amber-200 text-xs flex items-center justify-between">
+                        <div>
+                          <span className="font-extrabold text-amber-900 block text-[11px]">
+                            Course terminée !
+                          </span>
+                          <p className="text-[#5B6B7A] text-[11px]">
+                            Laissez une note de 1 à 5 étoiles au chauffeur
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => setSelectedRideForRating(ride)}
+                          className="bg-amber-400 hover:bg-amber-500 text-amber-950 font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 transition shadow-2xs cursor-pointer"
+                        >
+                          <Star className="w-3.5 h-3.5 fill-amber-950" />
+                          <span>Évaluer (1-5 ⭐)</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Footer details & price */}
                 <div className="flex items-center justify-between pt-1 text-xs">
                   <span className="text-[#5B6B7A] font-medium">
@@ -397,6 +449,15 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
             );
           })}
         </div>
+      )}
+
+      {/* Ride Rating Modal */}
+      {selectedRideForRating && (
+        <RideRatingModal
+          ride={selectedRideForRating}
+          isOpen={!!selectedRideForRating}
+          onClose={() => setSelectedRideForRating(null)}
+        />
       )}
     </div>
   );
